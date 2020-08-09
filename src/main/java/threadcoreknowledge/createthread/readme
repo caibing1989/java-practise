@@ -1,0 +1,5 @@
+1、runnable 方法将run方法和thread类解耦
+2、使用thread方式，每次都是新建任务，开销比较大
+3、thread的方式 是采用继承的方式，java不支持双继承导致thread方式不灵活
+4、thread方式，是重写其中run方法，不执行其中的target.run方法。所以thread中run整个被重写，runnable方式是最终调用target.run
+5、创建线程准确的来讲只有一种，就是通过thread类，只是其中的run方法有两种，一种是继承重写，一种是传入runnable对象，使用runnable对象的run方法

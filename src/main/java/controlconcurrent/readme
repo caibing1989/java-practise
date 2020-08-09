@@ -1,0 +1,12 @@
+1、什么是控制并发流程？
+控制并发流程的工具类，作用就是帮助我们程序员更容易让线程间合作，让它们之间相互合作，来满足业务逻辑。
+比如让线程a执行完毕，线程b再执行
+
+2、CountDownLatch类的作用？
+开始、进入等待、倒数结束、继续工作，类似拼团发车
+
+3、CountDownLatch的主要方法
+CountDownLatch、await、countDown
+
+4、CyclicBarrier和CountDownLatch的区别
+作用不同、可重用性不同

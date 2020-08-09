@@ -1,0 +1,21 @@
+1、什么是原子类，有什么作用？
+不可分割，即便是在多线程的情况下，原子类的原子操作也是不可中断的
+原子类的作用和锁有一定的类似，都是为了保证并发情况下的线程安全
+
+2、原子类相比于锁，有什么优势？
+原子类的第一个好处是，粒度更小，在非高并发的情况下，原子类的效率是优于锁的
+
+3、有哪6类原子类？
+基本类型的原子类：Atomic*基本类型原子类 AtomicInteger、AtomicLong、AtomicBoolean
+对象类型的原子类：Atomic*Reference引用类型原子类 AtomicReference、AtomicStampedReference、AtomicMarkableReference
+数组类型的原子类：Atomic*Array AtomicIntegerArray、AtomicLongArray、AtomicReferenceArray
+升级类型原子类，将非原子类 升级为原子类：
+Adder累加器
+Accumulator累加器
+
+4、AtomicIntegerFieldUpdater的注意点？
+
+5、AtomicLong和LongAdder的区别
+AtomicLong每次加法都需要同步，所以在高并发的时候，冲突会比较多，冲突比较多，降低了效率
+LongAdder每个线程都有自己的计数器，每次加法操作只在线程内部，中间不会去同步，这些线程间保持一致的工作实际上是不必要的
+LongAdder采用空间换时间，采用数组，每个数组元素中存放每个线程对应的计数器

@@ -1,0 +1,25 @@
+1、什么是阻塞队列？
+take方法，队列里无数据，则阻塞，直到队列里面有数据
+put方法，如果队列已满，则阻塞，无法继续插入数据，直到有空闲空间
+是否有界
+
+2、BlockingQueue的主要方法
+put take  阻塞
+add remove element 抛出异常
+offer poll peek 返回布尔或者null
+
+3、阻塞队列有哪些
+ReentrantLock保证线程安全
+await方法阻塞
+
+4、非阻塞队列
+cas保证线程安全 ConcurrentLinkedQueue
+
+5、如何选择适合自己的队列？
+边界、容量、吞吐
+
+6、为什么要有队列？
+保存数据，传递数据，交换数据
+
+7、Concurrent*是通过cas+synchronized实现并发，CopyOnWrite是通过复制一份原数据实现并发
+BlockQueue是通过AQS实现的

@@ -1,0 +1,20 @@
+1、jvm是什么，有什么，能干什么
+虚拟机是软件模拟的计算机系统
+jvm是java程序的运行环境
+
+
+2、java代码执行流程
+编译 class文件  jvm规范
+类装载器 classloader
+内存分配
+字节码执行
+垃圾回收
+高效并发处理
+
+3、认识jvm规范
+
+
+4、启动类加载器
+用于加载启动基础模块类，例如java.base java.management java.xml
+
+5、平台类加载器

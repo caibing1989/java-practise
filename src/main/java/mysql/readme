@@ -1,0 +1,358 @@
+1、InnoDB 默认什么隔离级别,为什么选用这种级别。选其他的可以么?
+参考答案:
+
+http://www.cnblogs.com/vinchen/archive/2012/11/19/2777919.html
+
+解题思路:数据库事务
+
+考察点:数据库事务
+
+分类:数据库事务{校招,社招}
+
+难度分级:P4
+
+2、RR级别下,都有哪些锁?有遇到过死锁么,什么情况下发生的死锁?
+参考答案:
+
+http://hedengcheng.com/?p=771
+
+解题思路:数据库事务
+考察点:数据库事务
+分类:数据库事务{校招,社招}
+难度分级:P4
+
+3、数据服务端的一些命令(show processlist等等)
+a. show tables或show tables from database_name; -- 显示当前数据库中所有表的名称
+b. show databases; -- 显示mysql中所有数据库的名称
+c. show columns from table_name from database_name; 或show columns from database_name.table_name; -- 显示表中列名称
+d. show grants for user_name; -- 显示一个用户的权限,显示结果类似于grant 命令
+e. show index from table_name; -- 显示表的索引
+f. show status; -- 显示一些系统特定资源的信息,例如,正在运行的线程数量
+g. show variables; -- 显示系统变量的名称和值
+h. show processlist; -- 显示系统中正在运行的所有进程,也就是当前正在执行的查询。大多数用户可以查看他们自己的进程,但是如果他们拥有process权限,就可以查 看所有人的进程,包括密码。
+i. show table status; -- 显示当前使用或者指定的database中的每个表的信息。信息包括表类型和表的最新更新时间
+j. show privileges; -- 显示服务器所支持的不同权限
+k. show create database database_name; -- 显示create database 语句是否能够创建指定的数据库
+l. show create table table_name; -- 显示create database 语句是否能够创建指定的数据库
+m. show engies; -- 显示安装以后可用的存储引擎和默认引擎。
+n. show innodb status; -- 显示innoDB存储引擎的状态
+o. show logs; -- 显示BDB存储引擎的日志
+p. show warnings; -- 显示最后一个执行的语句所产生的错误、警告和通知
+q. show errors; -- 只显示最后一个执行语句所产生的错误
+r. show [storage] engines; --显示安装后的可用存储引擎和默认引擎
+s. show procedure status --显示数据库中所有存储的存储过程基本信息,包括所属数据库,存储过 程名称,创建时间等
+
+t. show create procedure sp_name --显示某一个存储过程的详细信息 解题思路:
+
+考察点: mysql 分类:数据库,硬技能{校招,社招} 难度分级:P4、P5
+
+4、为什么MySQL的索引要使用B+树而不是其它树形结构?为什么不用B树
+参考答案:
+
+为什么不用B树?:因为B树的所有节点都是包含键和值的,这就导致了每个几点可以存储的内容就变少了,出度就少了,树的高度会增高,查询的 时候磁盘I/O会增多,影响性能。由于B+Tree内节点去掉了data域,因此可以拥有更大的出度,拥有更好的性能。
+
+解题思路:Mysql 索引数据结构
+考察点: Mysql索引数据结构,B+树 B-树 分类:Mysql、数据结构{校招,社招} 难度分级:P4,P5
+
+5、为什么InnoDB中表的主键最好要自增?
+InnoDB使用聚集索引,数据记录本身被存于主索引(一颗B+Tree)的叶子节点上。这就要求同一个叶子节点内(大小为一个内存页或磁盘页)的 各条数据记录按主键顺序存放,因此每当有一条新的记录插入时,MySQL会根据其主键将其插入适当的节点和位置,如果页面达到装载因子(Inno DB默认为15/16),则开辟一个新的页(节点)。如果表使用自增主键,那么每次插入新的记录,记录就会顺序添加到当前索引节点的后续位置, 当一页写满,就会自动开辟一个新的页。这样就会形成一个紧凑的索引结构,近似顺序填满。由于每次插入时也不需要移动已有数据,因此效率很 高,也不会增加很多开销在维护索引上。
+
+如果使用非自增主键(如果身份证号或学号等),由于每次插入主键的值近似于随机,因此每次新纪录都要被插到现有索引页得中间某个位置,此 时MySQL不得不为了将新记录插到合适位置而移动数据,甚至目标页面可能已经被回写到磁盘上而从缓存中清掉,此时又要从磁盘上读回来,这增 加了很多开销,同时频繁的移动、分页操作造成了大量的碎片,得到了不够紧凑的索引结构,后续不得不通过OPTIMIZE TABLE来重建表并优化填充页面。
+
+因此,只要可以,请尽量在InnoDB上采用自增字段做主键。 解题思路:InnoDB 主键选择
+考察点:InnoDB 索引数据结构,Mysql应用技能 分类:Mysql{校招,社招}
+
+难度分级:P4,P5
+
+6、数据库为什么要使用MVCC,使用MVCC有什么缺点?
+参考答案:
+
+Multi-Version Concurrency Control 多版本并发控制,因为锁机制是一种预防性的,读会阻塞写,写也会阻塞读,当锁定粒度较大,时间较长时并发性能就不会太好;而MVCC是一种 后验性的,读不阻塞写,写也不阻塞读,等到提交的时候才检验是否有冲突,由于没有锁,所以读写不会相互阻塞,从而大大提升了并发性能。
+
+缺点:通过MVCC机制,虽然让数据变得可重复读,但我们读到的数据可能是历史数据,是不及时的数据,不是数据库当前的数据!这在一些对于 数据的时效特别敏感的业务中,就很可能出问题。
+
+解题思路:MVCC
+考察点: mysql 锁机制与MVCC 分类:Mysql、锁机制、MVCC{校招,社招} 难度分级:P5
+
+7、如何分析慢查询,慢查询的分析步骤?
+参考答案:
+
+慢查询优化基本步骤
+
+0.先运行看看是否真的很慢,注意设置SQL_NO_CACHE 1.where条件单表查,锁定最小返回记录表。这句话的意思是把查询语句的where都应用到表中返回的记录数最小的表开始查起,单表每个字段分 别查询,看哪个字段的区分度最高
+2.explain查看执行计划,是否与1预期一致(从锁定记录较少的表开始查询)
+
+3.order by limit 形式的sql语句让排序的表优先查
+
+3.order by limit 形式的sql语句让排序的表优先查 4.了解业务方使用场景 5.加索引时参照建索引的几大原则 6.观察结果,不符合预期继续从0分析
+
+参考:http://tech.meituan.com/mysql-index.html 解题思路:
+考察点:mySql查询优化 分类:数据库,硬技能{校招,社招}
+
+难度分级:P5
+
+8、MySQL索引默认实现是用的什么数据结构,为什么采用这种?
+B+树。
+
+索引也是磁盘上的,磁盘的I/O存取的消耗是比内存高出几个数量级的,索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数,所以要尽量降 低树的高度。要降低树的高度,因此用多分支的树,并且要树的每层的节点尽量的多,B+树将一个节点的大小设为等于一个页,这样每个节点只需 要一次I/O就可以完全载入,由于B+Tree内节点去掉了data域,因此可以拥有更大的出度,拥有更好的性能。
+
+参考:http://www.marksaas.com/2014/04/mysql%E7%B4%A2%E5%BC%95%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86.html 解题思路:Mysql 索引数据结构
+考察点: Mysql索引数据结构,B+树 B-树
+分类:Mysql、数据结构{校招,社招}
+
+难度分级:P4,P5
+
+9、MySQL联合索引使用是有什么规则?如果对A,B,C做索引,那么SQL语句写成where C=X and B=X and A=X,是否还能用到该索引?如果SQL语句写成where A=X and B>X and C=X是否还能用到该索引?
+参考答案:
+
+联合索引有最左前缀匹配原则。
+where C=X and B=X and A=X能用到该索引,因为=和in可以乱序,比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序,mysql的查询优化器会帮你优化成索引可以识别的形式。
+
+where A=X and B>X and C=X可以用到该索引,但C是用不到索引的,因为mysql会一直向右匹配直到遇到范围查询(>、<、between、like)就停止匹配。
+
+解题思路:联合索引最左前缀匹配原则
+
+考察点: 是否对联合索引的匹配原则,以及所以的数据结构有过了解
+
+分类:Mysql索引基础知识{校招,社招}
+
+难度分级:P4,P5
+
+10、MySQL引擎MyISAM,InnoDB有什么区别,各有什么特点?
+参考答案:
+
+MySQL有多种存储引擎,MyISAM和InnoDB是其中常用的两种。这里介绍关于这两种引擎的一些基本概念(非深入介绍)。
+
+MyISAM是MySQL的默认存储引擎,基于传统的ISAM类型,支持全文搜索,但不是事务安全的,而且不支持外键。每张MyISAM表存放在三个文 件中:frm 文件存放表格定义;数据文件是MYD (MYData);索引文件是MYI (MYIndex)。
+
+InnoDB是事务型引擎,支持回滚、崩溃恢复能力、多版本并发控制、ACID事务,支持行级锁定(InnoDB表的行锁不是绝对的,如果在执行一个S QL语句时MySQL不能确定要扫描的范围,InnoDB表同样会锁全表,如like操作时的SQL语句),以及提供与Oracle类型一致的不加锁读取方式。I nnoDB存储它的表和索引在一个表空间中,表空间可以包含数个文件。
+
+主要区别:
+MyISAM是非事务安全型的,而InnoDB是事务安全型的。 MyISAM锁的粒度是表级,而InnoDB支持行级锁定。 MyISAM支持全文类型索引,而InnoDB不支持全文索引。 MyISAM相对简单,所以在效率上要优于InnoDB,小型应用可以考虑使用MyISAM。
+
+MyISAM表是保存成文件的形式,在跨平台的数据转移中使用MyISAM存储会省去不少的麻烦。
+
+MyISAM表是保存成文件的形式,在跨平台的数据转移中使用MyISAM存储会省去不少的麻烦。
+
+InnoDB表比MyISAM表更安全,可以在保证数据不会丢失的情况下,切换非事务表到事务表(alter table tablename type=innodb)。
+
+应用场景:
+
+MyISAM管理非事务表。它提供高速存储和检索,以及全文搜索能力。如果应用中需要执行大量的SELECT查询,那么MyISAM是更好的选择。
+
+InnoDB用于事务处理应用程序,具有众多特性,包括ACID事务支持。如果应用中需要执行大量的INSERT或UPDATE操作,则应该使用InnoDB, 这样可以提高多用户并发操作的性能。
+
+解题思路:MyISAM和InnoDB引擎区别
+考察点: MyISAM和InnoDB引擎的了解
+分类:Mysql
+难度分级:P5
+
+11、从性能上考虑,MySQL InnoDB 表主键如何选择,为什么?
+自增主键
+
+InnoDB使用聚集索引,数据记录本身被存于主索引(一颗B+Tree)的叶子节点上。这就要求同一个叶子节点内(大小为一个内存页或磁盘页)的 各条数据记录按主键顺序存放,因此每当有一条新的记录插入时,MySQL会根据其主键将其插入适当的节点和位置,如果页面达到装载因子(Inno DB默认为15/16),则开辟一个新的页(节点)。如果表使用自增主键,那么每次插入新的记录,记录就会顺序添加到当前索引节点的后续位置, 当一页写满,就会自动开辟一个新的页。这样就会形成一个紧凑的索引结构,近似顺序填满。由于每次插入时也不需要移动已有数据,因此效率很 高,也不会增加很多开销在维护索引上。
+
+如果使用非自增主键(如果身份证号或学号等),由于每次插入主键的值近似于随机,因此每次新纪录都要被插到现有索引页得中间某个位置,此 时MySQL不得不为了将新记录插到合适位置而移动数据,甚至目标页面可能已经被回写到磁盘上而从缓存中清掉,此时又要从磁盘上读回来,这增 加了很多开销,同时频繁的移动、分页操作造成了大量的碎片,得到了不够紧凑的索引结构,后续不得不通过OPTIMIZE TABLE来重建表并优化填充页面。
+
+因此,只要可以,请尽量在InnoDB上采用自增字段做主键。 解题思路:InnoDB 主键选择
+考察点:InnoDB 索引数据结构,Mysql应用技能 分类:Mysql
+
+12、MySQL InnoDB默认的事务隔离级别是什么?
+参考答案:
+Repeatable Read(可重复读)
+解题思路:Repeatable Read(可重复读)
+考察点: 数据库事务了解
+分类:Mysql、事务
+难度分级:P4,P5
+
+
+
+
+
+13、应用中怎么做到对数据库的读写分离,如何避免主从延迟造成的影响?
+
+
+解题思路:
+考察点:
+分类:
+难度分级:P5
+
+14、如何处理组织机构树的联合查询问题?
+树形结构来表征组织机构的关联关系,具体实现参考
+http://blog.csdn.net/monkey_d_meng/article/details/6647488 http://blog.csdn.net/biplusplus/article/details/7433625 解题思路:
+
+考察点:
+
+分类: 难度分级:P5
+
+15、MySQL Explain分析,给面试者一段具体的SQL Explain
+参考答案:
+
+http://wiki.sankuai.com/x/-JMRBQ
+
+解题思路: 考察点:
+
+分类:
+难度分级:P5
+
+16、如何删除一个表的重复数据
+参考答案:
+
+
+
+CREATE TABLE `poi_menu_test` ( `id` bigint(30) NOT NULL AUTO_INCREMENT COMMENT 'ID', `poi_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'id', `name` varchar(64) NOT NULL DEFAULT '' COMMENT '', PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17621402 DEFAULT CHARSET=utf8 COMMENT='poi';
+delete pmt from poi_menu_test pmt inner join ( select id,poi_id,name from poi_menu_test group by poi_id,name having count(*) > 1 )tmp on tmp.poi_id = pmt.poi_id and tmp.name = pmt.name and tmp.id <> pmt.id;
+解题思路:
+考察点:
+分类:社招
+难度分级:P5
+
+17、数据库事物隔离级别,每种的特点;SPRING事物传播与隔离级别的关系,如果配置的。
+数据事务的四种隔离级别
+
+在数据库操作中,为了有效保证并发读取数据的正确性,提出的事务隔离级别。我们的数据库锁,也是为了构建这些隔离级别存在的。
+隔离级别
+
+未提交读(Read uncommitted) 已提交读(Read committed) 可重复读(Repeatable read) 可串行化(Serializable )
+
+脏读(Dirty Read)
+
+可能 不可能 不可能 不可能
+
+不可重复读(NonRepeatable Read)
+
+可能 可能 不可能 不可能
+
+幻读(Phantom Read)
+
+可能 可能 可能 不可能
+
+未提交读(Read Uncommitted):允许脏读,也就是可能读取到其他会话中未提交事务修改的数据 提交读(Read Committed):只能读取到已经提交的数据。Oracle等多数数据库默认都是该级别 (不重复读)
+
+可重复读(Repeated Read):可重复读。在同一个事务内的查询都是事务开始时刻一致的,InnoDB默认级别。在SQL标准中,该隔离级别消除了不可重复读,但是还存 在幻象读
+
+串行读(Serializable):完全串行化的读,每次读都需要获得表级共享锁,读写相互都会阻塞
+
+spring的事务隔离级别
+
+ISOLATION_DEFAULT:使用数据库默认的隔离级别。 ISOLATION_READ_UNCOMMITTED:允许读取改变了的还未提交的数据,可能导致脏读、不可重复读和幻读。
+ISOLATION_READ COMMITTED:允许并发事务提交之后读取,可以避免脏读,可能导致重复读和幻读。 ISOLATION_REPEATABLE_READ:对相同字段的多次读取结果一致,可导致幻读。 ISOLATION_SERIALIZABLE:完全服从ACID的原则,确保不发生脏读、不可重复读和幻读。 可以根据自己的系统对数据的要求采取适应的隔离级别,因为隔离牵涉到锁定数据库中的记录,对数据正性要求越严格,并发的性能也越差。 spring的事务传播行为
+spring事务的传播行为说的是当一个方法调用另一个方法时,事务该如何操作。 PROPAGATION_MANDATORY:该方法必须运行在一个事务中。如果当前事务不存在则抛出异常。 PROPAGATION_NESTED:如果当前存在一个事务,则该方法运行在一个嵌套的事务中。被嵌套的事务可以从当前事务中单独的提交和回滚。如 果当前不存在事务,则开始一个新的事务。各厂商对这种传播行为的支持参差不齐,使用时需注意。 PROPAGATION_NEVER:当前方法不应该运行在一个事务中。如果当前存在一个事务,则抛出异常。 PROPAGATION_NOT_SUPPORTED:当前方法不应该运行在一个事务中。如果一个事务正在运行,它将在该方法的运行期间挂起。 PROPAGATION_REQUIRED:该方法必须运行在一个事务中。如果一个事务正在运行,该方法将运行在这个事务中。否则,就开始一个新的事务 。
+
+PROPAGATION_REQUIRES_NEW:该方法必须运行在自己的事务中。它将启动一个新的事务。如果一个现有的事务正在运行,将在这个方法的运
+
+
+
+PROPAGATION_REQUIRES_NEW:该方法必须运行在自己的事务中。它将启动一个新的事务。如果一个现有的事务正在运行,将在这个方法的运 行期间挂起。 PROPAGATION_SUPPORTS:当前方法不需要事务处理环境,但如果一个事务已经在运行的话,这个方法也可以在这个事务里运行。
+
+配置方法:
+
+<property name="transactionAttributes"> <props> <prop key="save*">PROPAGATION_REQUIRED</prop> <prop key="update*">PROPAGATION_REQUIRED</prop> <prop key="delete*">PROPAGATION_REQUIRED</prop> <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> <prop key="find*">PROPAGATION_REQUIRED,ISOLATION_READ_UNCOMMITTED</prop> </props>
+解题思路: 考察点:
+
+分类: 数据库,spring 难度分级:P5
+
+18、如何优化查询语句,explain每个字段的含义,如果优化OR语句,IN 会用到索引吗?创建索引的顺序
+参考答案:
+explain每个字段含义:Mysql explain学习总结 or语句:where语句里如果带有or条件,是可以用到索引,前提是有针对or条件所有字段的单独索引 in会用到索引
+优化or语句:or条件建立单独索引,用union替代
+
+解题思路:
+考察点: mysql 索引,优化 分类:mysql
+难度分级:P5
+
+19、每个表的数据大小是否有限制,数据过大会对性能造成影响吗?常见的一些分库分表策略
+参考答案: mysql单表大小限制可以参考这篇文章:http://database.51cto.com/art/201011/234308.htm
+
+这里引用一个问题为什么要分库分表呢?MySQL处理不了大的表吗? 其实是可以处理的大表的.我所经历的项目中单表物理上文件大小在80G多,单表记录数在5亿以上,而且这个表 属于一个非常核用的表:朋友关系表.
+
+但这种方式可以说不是一个最佳方式. 因为面临文件系统如Ext3文件系统对大于大文件处理上也有许多问题. 这个层面可以用xfs文件系统进行替换.但MySQL单表太大后有一个问题是不好解决: 表结构调整相关的操作基 本不在可能.所以大项在使用中都会面监着分库分表的应用.
+
+从Innodb本身来讲数据文件的Btree上只有两个锁, 叶子节点锁和子节点锁,可以想而知道,当发生页拆分或是添加 新叶时都会造成表里不能写入数据.
+
+关于分表分库策略:
+
+http://my.oschina.net/cmcm/blog/175104
+
+解题思路:
+考察点: mysql
+分类:mysql
+难度分级:P5 P6
+
+20、如何实现主从分离,如何解决主从不一致带来的问题?
+参考:数据库读写分离相关调研 解题思路:
+考察点: MySQL
+
+
+
+分类:MySQL 难度分级:P5 P6
+
+21、数据库锁,如何防止覆盖更新,如何用数据库模拟队列?
+参考答案:
+
+覆盖更新可以用for update和 where 要更新的字段=更新之前的状态,判断影响记录数来实现。模拟队列需要考虑类型,优先级字段,同时用锁来避免重复同一条记录
+
+解题思路:
+考察点: MySQL,数据库
+分类:数据库
+难度分级:P5 P6
+
+22、什么是乐观锁与悲观锁,如何实现乐观锁?
+悲观锁
+
+正如其名,它指的是对数据被外界(包括本系统当前的其他事务,以及来自外部系统的事务处理)修改持保守态度,因此,在整个数据处理过程中 ,将数据处于锁定状态。悲观锁的实现,往往依靠数据库提供的锁机制(也只有数据库层提供的锁机制才能真正保证数据访问的排他性,否则,即 使在本系统中实现了加锁机制,也无法保证外部系统不会修改数据)。
+乐观锁
+
+相对悲观锁而言,乐观锁机制采取了更加宽松的加锁机制。悲观锁大多数情况下依靠数据库的锁机制实现,以保证操作最大程度的独占性。但随之 而来的就是数据库性能的大量开销,特别是对长事务而言,这样的开销往往无法承受。
+而乐观锁机制在一定程度上解决了这个问题。乐观锁,大多是基于数据版本( Version )记录机制实现。何谓数据版本?即为数据增加一个版本标识,在基于数据库表的版本解决方案中,一般是通过为数据库表增加一个 “version” 字段来实现。读取出数据时,将此版本号一同读出,之后更新时,对此版本号加一。此时,将提交数据的版本数据与数据库表对应记录的当前版本 信息进行比对,如果提交的数据版本号大于数据库表当前版本号,则予以更新,否则认为是过期数据。
+
+--补充, 当主键采用数据库表生成时(GenerationType.TABLE),采用乐观锁好还是采用悲观锁好? 这个要考虑决具体的策略?
+
+一般来讲,我们会根据数据生长速度(考察点,需要考虑)来申请一定数量的主键ID,比如100个,这样可以最大限度的增加主键生成的效率,减少不必要的 数据库交互
+
+这样即使在集群环境下,表访问的竞争压力并不大,因此采用悲观锁就可以;而且乐观锁并不一定能够防止数据的"脏写",会导致主键重复的情况发生。 要说明的是,MVCC的实现没有固定的规范,每个数据库都会有不同的实现方式,这里讨论的是InnoDB的MVCC。
+
+参考:Innodb中的事务隔离级别和锁的关系 解题思路:
+考察点: 悲观锁 乐观锁
+分类: 数据库
+
+难度分级:P5
+
+23、数据库连接池有哪些重要配置参数,分别起到什么作用?
+标准答案:
+
+C3P0 拥有比 DBCP 更丰富的配置属性,通过这些属性,可以对数据源进行各种有效的控制: acquireIncrement :当连接池中的连接用完时, C3P0 一次性创建新连接的数目; acquireRetryAttempts :定义在从数据库获取新连接失败后重复尝试获取的次数,默认为 30 ; acquireRetryDelay :两次连接中间隔时间,单位毫秒,默认为 1000 ;
+
+autoCommitOnClose :连接关闭时默认将所有未提交的操作回滚。默认为 false ;
+automaticTestTable : C3P0 将建一张名为 Test 的空表,并使用其自带的查询语句进行测试。如果定义了这个参数,那么属性 preferredTestQuery 将被忽略。你 不能在这张 Test 表上进行任何操作,它将中为 C3P0 测试所用,默认为 null ;
+breakAfterAcquireFailure :获取连接失败将会引起所有等待获取连接的线程抛出异常。但是数据源仍有效保留,并在下次调 用 getConnection() 的时候继续尝试获取连接。如果设为 true ,那么在尝试获取连接失败后该数据源将申明已断开并永久关闭。默认为 false ;
+checkoutTimeout :当连接池用完时客户端调用 getConnection() 后等待获取新连接的时间,超时后将抛出 SQLException ,如设为 0 则无限期等待。单位毫秒,默认为 0 ;
+connectionTesterClassName : 通过实现 ConnectionTester 或 QueryConnectionTester 的类来测试连接,类名需设置为全限定名。默认为 com.mchange.v2.C3P0.impl.DefaultConnectionTester ;
+idleConnectionTestPeriod :隔多少秒检查所有连接池中的空闲连接,默认为 0 表示不检查;
+initialPoolSize :初始化时创建的连接数,应在 minPoolSize 与 maxPoolSize 之间取值。默认为 3 ;
+
+maxIdleTime :最大空闲时间,超过空闲时间的连接将被丢弃。为 0 或负数则永不丢弃。默认为 0 ;
+
+
+
+var flag=false; function checkForm(){
+
+if (flag==true){ return false;
+
+ } flag=true; document.form1.submit();
+}
+
+maxIdleTime :最大空闲时间,超过空闲时间的连接将被丢弃。为 0 或负数则永不丢弃。默认为 0 ;
+maxPoolSize :连接池中保留的最大连接数。默认为 15 ;
+maxStatements : JDBC 的标准参数,用以控制数据源内加载的 PreparedStatement 数量。但由于预缓存的 Statement 属 于单个 Connection 而不是整个连接池。所以设置这个参数需要考虑到多方面的因素,如果 maxStatements 与 maxStatementsPerConnection 均为 0 ,则缓存被关闭。默认为 0 ;
+maxStatementsPerConnection :连接池内单个连接所拥有的最大缓存 Statement 数。默认为 0 ;
+numHelperThreads : C3P0 是异步操作的,缓慢的 JDBC 操作通过帮助进程完成。扩展这些操作可以有效的提升性能,通过多线程实现多个操作同时被执行。默认为 3 ;
+preferredTestQuery :定义所有连接测试都执行的测试语句。在使用连接测试的情况下这个参数能显著提高测试速度。测试的表必须在初始数据源的时候就存在。默认 为 null ;
+propertyCycle : 用户修改系统配置参数执行前最多等待的秒数。默认为 300 ;
+testConnectionOnCheckout :因性能消耗大请只在需要的时候使用它。如果设为 true 那么在每个 connection 提交的时候都 将校验其有效性。建议使用 idleConnectionTestPeriod 或 automaticTestTable
+等方法来提升连接测试的性能。默认为 false ;
+testConnectionOnCheckin :如果设为 true 那么在取得连接的同时将校验连接的有效性。默认为 false 。
+
+解题思路:同答案
+考察点: 数据库连接池 分类:Spring,Mysql {社招} 难度分级:P5,P6

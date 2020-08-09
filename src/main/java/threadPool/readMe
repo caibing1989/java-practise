@@ -1,0 +1,27 @@
+1、为什么要使用线程池？
+1）提升性能，省去每次处理任务时构建线程、销毁线程的过程
+2）便于管理，线程是系统资源，需要对其创建的数量、状态进行管理，不然的话，可能会导致系统资源被耗尽，影响系统的稳定性
+
+2、线程池的处理流程
+1）用户提交任务
+2）核心线程数corePoolSize是否已满
+3）如果corePoolSize未满，直接创建新的线程，执行任务
+4）如果corePoolSize已满，再判断等待队列是否已满
+5）如果等待队列未满，将任务放到队列中排队
+6）如果等待队列已满，再判断线程池是否已满，maximumPoolSize是否已满
+7）如果maximumPoolSize未满，直接创建新的线程，执行任务
+8）如果maximumPoolSize已满，按照RejectedExecutionHandle中的策略来处理提交的任务
+
+3、线程池参数解释
+1）corePoolSize：线程池中核心线程数的最大值，超过该值后新建的就是非核心线程，核心线程默认情况是即使没有任务，线程也一直存在于线程池中。如果设置allowCoreThreadTimeout参数为true，核心线程也会被销毁
+2）maximumPoolSize：线程池中允许的最大线程数，maximumPoolSize = 最大核心线程数 + 最大非核心线程数
+3）keepAliveTime：允许线程空闲存活的时间，默认情况是针对非核心线程，如果allowCoreThreadTimeout=true，keepAliveTime也会针对核心线程
+4）timeUnit：keepAliveTime对应的单位
+5）blockingQueue：当corePoolSize满了之后，存放待执行任务Runnable的队列
+6）threadFactory：线程工厂，创建线程的方式，自己定义的话需要实现newThread方法，一般会使用google的ThreadFactoryBuilder来创建，比较方便
+7）RejectExecutionHandle，当maximumPoolSize满了之后，会采用的拒绝策略，
+
+4、线程池大小
+1）cpu密集型，线程数少一点，一般为cpu核心数+1，节约线程切换造成的额外资源
+2）io密集型，因为不太占用cpu资源，所以可以多一点，一般为cpu核心数*2
+3）如果是混合型，可以考虑针对不同的场景拆分不同的线程池，在都执行完成之后再合并，拆分之后的执行时长约接近，一方不存在过长时间的空等，拆分的效果越好。当然整体时长需要加上拆分合并动作本身的时长。

@@ -1,0 +1,47 @@
+1、jps
+jvm process status tool
+主要输出jvm中运行的进程状态信息
+jps -l 输出主类全名
+jps -v 输出启动参数
+也可以使用ps -ef | grep java
+
+2、jinfo
+打印给定进程或核心文件或远程调试服务器的配置信息
+
+3、jstack
+主要用来查看某个java进程内的线程堆栈信息。
+一些小技巧：死循环，可以执行多次jstack，如果某个用户线程一直runnable，说明这个用户线程一直在运行，考虑是不是死循环
+
+4、jmap
+查看对堆内存状况，Dump堆快照，保存现场、线下分析
+jmap -dump:format=b,file=a.bin 3418
+
+5、jstat
+查看各个区内存和gc的情况，用于定位内存泄漏和full gc
+jstat -class 查看类装载数量、装载大小、类卸载数量、卸载大小、类装载所耗费时间
+jstat -gc 查看堆状况，包括eden区、两个s区、老年代、持久代的容量、已用空间、GC时间等
+S0C：  年轻代S0区的容量  S1C：年轻代S1区的容量  S0U：年轻代S0区目前已使用的空间  S1U：年轻代S1区已使用的容量 EC： 年轻代Eden的容量  EU：年轻代Eden已使用的容量
+OC：年老代的容量  OU： 年老代已使用的容量
+PC：Perm的容量 PU：Perm已使用的容量
+YGC： 从启动到现在YoungGC的次数 YGCT：YoungGC所用的时间(s)
+FGC：从启动到现在FullGC的次数 FGCT： 从启动到现在FullGC所用的时间(s)
+GCT: 从启动到现在GC的总时间
+jstat -gccapacity 查看堆各个代使用的最大最小空间
+jstat -gcutil 查看堆各个代已使用空间占总空间的百分比，最常用的命令
+jstat  -gcnew 新生代的GC情况
+jstat  -gcnewcapacity 新生代的最大、最小空间
+jstat  -gcold  老年代的GC情况
+jstat -gcoldcapacity 老生代的最大、最小空间
+jsata -gcpermcapacity 永久带的最大、最小空间
+
+4、jcmd
+将诊断命令请求发送到正在运行的java虚拟机，比如可以用来导出堆，查看java进程，导出线程信息，执行gc等
+
+5、jcmd 241256 JFR.start delay=10s duration=1m filename=/home/sankuai/log.jfr
+
+6、jconsole/jmc/VisualVM
+提供内存和cpu分析，堆转储分析，内存泄漏检测，访问MBean和垃圾回收
+
+7、两种远程连接方式
+jmx
+jstatd

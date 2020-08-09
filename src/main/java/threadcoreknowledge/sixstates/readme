@@ -1,0 +1,13 @@
+线程有哪几种生命状态？
+new、runnable、terminate、blocked、waiting、timed_waiting
+
+runnable synchronized 后未获得锁时进入blocked，blocked 获得monitor锁之后 进入 runnable
+
+runnable wait方法、join方法、park方法 后进入 waiting， waiting 通过 notify、notify_all、unpark后 回到runnable
+
+runnable wait time方法、sleep方法、join time方法、park time方法 后进入 timed_waiting，通过notify、notify_all、unpark后 回到runnable
+
+正常结束或者异常后 terminate，任何状态发生异常 都会达到terminate
+
+有哪两种情况会进入block？
+一种是第一次进入synchronized，一种是在调用wait方法之后被唤醒时 重新进入synchronized

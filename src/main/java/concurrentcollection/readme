@@ -1,0 +1,11 @@
+1、为什么HashMap是线程不安全的？
+
+
+2、为什么要有CopyOnWriteArrayList？
+
+3、CopyOnWriteArrayList的读写规则
+读的时候不加锁，写的时候不会阻塞读，写的时候互斥
+
+
+4、CopyOnWriteArrayList的缺点有哪些？
+数据一致性问题和内存占用问题

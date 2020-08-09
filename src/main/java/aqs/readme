@@ -1,0 +1,17 @@
+1、aqs在CountDownLatch中的实现？
+调用CountDownLatch中的await方法时，便会尝试获取共享锁，不过一开始获取不到该锁，会被阻塞
+共享锁获取的条件是，count 锁计数器等于0
+而共享锁的初始值为count，每当一个线程调用countDown方法时，才将count减1
+当count=0的时候，前面被阻塞后进入队列的线程，就都会重新继续运行
+
+2、aqs在Semaphore中的实现？
+在Semaphore中，state代表许可证的剩余量
+在tryAcquire方法中，nonfairTryAcquireShared大于等于0，返回true
+这里会先检查state的剩余数量够不够这次需要，如果不够，就返回负数，也就返回失败
+如果够了，就自旋compareAndSetState改变state的数量，直到set成功就返回正数
+如果自旋期间被其他人改了，导致剩余数量不够，也会返回负数，代表失败
+
+3、aqs在ReentrantLock中的实现？
+分析释放锁tryRelease方法
+由于是可重入锁，state代表重入的次数，每次释放锁前，先判断是不是当前锁的持有者，如果不是就抛异常
+如果是的话，重入次数就减1，减到0就代表完全释放了

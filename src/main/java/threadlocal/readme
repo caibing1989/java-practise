@@ -1,0 +1,52 @@
+1、thread local的两大使用场景？
+每个线程需要一个线程独享对象（通常是工具类，例如SimpleDateFormat和Random），工具类线程不安全，每个线程有自己独立的工具类
+每个线程需要保存全局的信息，解决参数传递的麻烦
+
+2、initialValue场景
+新建的时机不受外界影响，完全由我们自己控制，例如工具类
+
+3、set的场景
+
+4、thread local带来的好处
+达到线程安全
+不需要加锁，提高执行效率
+高效的利用内存，不需要每个任务建一个对象，只要为每个线程建立一个
+使用方便，简洁，一句话拿到我们想要的对象或者参数
+
+5、Thread、ThreadLocal、ThreadLocalMap之间的关系？
+每个Thread对象中有一个ThreadLocalMap成员对象，在ThreadLocalMap对象中，key为ThreadLocal引用，value为ThreadLocal对象值
+一个Thread对象需要一个ThreadLocalMap来存储多个不同的ThreadLocal对象，因为一个Thread有可能会用到很多不同的ThreadLocal对象
+
+6、initialValue有什么特点？
+该方法会返回当前线程对应的初始值，而且这个是延迟加载的，只有调用get方法，才会触发，间接执行initialValue这个方法，后面再次去执行get时，不会再次触发initialValue，除非调用了remove方法
+如果在调用get之前set了，那么就不会执行initialValue方法
+如果不重写initialValue方法，调用get时就返回null
+
+7、get方法解析
+get方法是先取出ThreadLocalMap对象，然后调用map.getEntry 同时传入ThreadLocal的引用，获得ThreadLocal对应的value
+
+8、set方法解析
+
+9、ThreadLocalMap类分析
+ThreadLocalMap定义在ThreadLocal中，ThreadLocalMap里面重要的内部对象为Entry[] table，key为ThreadLocal，value为用户要存储的对象，例如user等
+
+10、ThreadLocalMap如何解决hash冲突的，和java8中的HashMap有什么不同？
+ThreadLocalMap采用线性探测法，如果发生冲突，就找下一个空位置
+
+11、initialValue和set
+本质都是用map.set方法添加value，它们之间起点和入口不同
+
+12、使用ThreadLocal时要注意的问题
+内存泄漏，某个对象不再有用，但是占用的内存却不能被回收
+
+13、ThreadLocal哪里会发生内存泄漏？
+要不就是key泄漏了，要不就是value泄漏了，要主动调用remove方法
+
+14、ThreadLocal中的key泄漏是什么场景导致的？
+弱引用
+
+15、共享对象
+如果ThreadLocal中的set进去的对象本来就是多个线程共享的同一个对象，那么get出来的也还是共享的对象，这样就存在线程安全问题。所以不应该在ThreadLocal里面放置一些静态的对象
+
+16、在Spring中哪里用到了ThreadLocal？
+各种holder
