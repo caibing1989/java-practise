@@ -1,0 +1,128 @@
+1、什么是redis？
+Redis运行于独立的进程，通过网络协议和应用交互，将数据保存在内存中，并提供多种手段持久化内存数据。
+Redis具备跨服务器的水平拆分、复制的分布式特性。Redis不同于Memcached将value视作黑盒，Redis的value本身具有结构化的特点，
+对于value提供了丰富的操作。基于内存存储的特点使得Redis与传统的关系型数据库相比，拥有极高的吞吐量和响应性能
+
+2、redis常用的数据结构？
+Redis 提供了五种常用数据结构：Strings、Lists、Hashes、Sets、Sorted Sets
+
+3、Strings?
+Strings的内部实现是一种名为简单动态字符串（Simple Dynamic String）的抽象类型。
+typedef struct sdshdr {
+  	// 记录buf数组中已使用字节的数量
+  	// 等于SDS所保存字符串的长度
+	unsigned int len;
+  	// 记录 buf 数组中未使用字节的数量
+  	unsigned int free;
+  	// 字节数组，用于保存字符串
+  	char buf[];
+};
+buf数组存储了字节串的内容，但它本身的长度通常大于所存储的内容的长度，后者通过len字段直接在O(1)的复杂度内得出。
+buf中free区域的引入提升了sds对字节串处理的性能，减少了处理过程中可能遇到的内存申请和释放的次数。
+
+4、Lists?
+Lists类型的内部实现是linkedlist或ziplist。当Lists的元素个数和单个元素较小时，Redis会采用ziplist实现以减少内存占用，否则采用linkedlist结构
+
+5、LinkedList？
+typedef struct list {
+  	// 表头节点
+	listNode *head;
+  	// 表尾节点
+  	listNode *tail;
+  	// 链表所包含的节点数量
+  	unsigned long len;
+  	// 节点值复制函数
+  	void *(*dup)(void *ptr);
+  	// 节点值释放函数
+  	void (*free)(void *ptr);
+  	// 节点值对比函数
+  	int (*match)(void *ptr,void *key);
+} list;
+typedef struct listNode {
+	// 前置节点
+  	struct listNode *prev;
+  	// 后置节点
+  	struct listNode *next;
+  	// 节点值
+  	void *value;
+} listNode;
+
+6、Hashes?
+Hashes的语义和大多数程序语言语义一致：包含若干个key-value，其中key不重复。
+Hashed内部的key和value不能再嵌套map了，只能是Strings所能表达的内容：整形、浮点数、字节串。其内部实现是hashtable和ziplist
+
+7、Sets？
+Sets类似于Lists，但它是一个无序集合。Sets内部实现是intset或hashtable（当只包含整数值元素，并且数量不多时，使用intset，否则使用hashtable）
+
+8、Sorted Sets?
+Sorted Sets类似于Hashed是一个键值对，但它是一个有序的键值对。
+key：key-value对中的键，在一个Sorted Sets中不重复
+value：是一个浮点数，称为score
+有序：Sorted Sets内部按照score从小到大排序。
+Sorted Sets内部实现是ziplist或skiplist+hashtable来实现。（元素少时使用ziplist，否则使用skiplist+hashtable）
+
+9、Redis持久化？
+全量模式
+Redis的全量写入包含两种方式：SAVE（可以显式触发，也可以在redis shutdown时触发）和BGSAVE（可以显式触发，可以通过配置定时触发，
+也可以在master-slave的结构下由slave节点触发）。SAVE命令会阻塞Redis进程，期间不能处理任何命令请求。BGSAVE会fork出一个子线程，
+期间Redis进程可以接着处理后续命令。BGSAVE相比于SAVE的优势是持久化期间可以持续提供读写服务，但这也会增加服务器内存开销。
+还有就是在fork之后执行的写命令产生的数据变更无法在快照中体现
+增量模式
+全量模式的持久化保存的是数据，而增量模式的持久化保存的是数据的变更记录。增量持久化称为AOF（append-only file），
+并在此基础上以rewrite机制优化性能。
+
+10、分布式redis？
+Redis作为数据存储系统，无论数据是存储在内存中还是持久化到本地，作为单实例节点，在实际应用中总会面临如下挑战：
+数据量伸缩：单实例Redis存储的key-value对的数量受限于单机的内存和磁盘容量。随着数据的不断增长，存储容量会达到瓶颈。
+访问量激增：单实例Redis单线程地运行，吞吐量受限于单次请求处理的平均耗时。当业务数据面临超过单实例处理能力的高吞吐量需求时，如何提升处理能力成为难点。
+单点故障：Redis持久化机制一定程度上缓解了宕机带来的数据丢失问题，但当单实例所在的物理节点发生不可恢复故障时，如何保证业务数据不丢以及如何在故障期间快速恢复成为了大的挑战。
+
+水平拆分：水平拆分就是将对数据的存储和访问分散到不同节点上分别处理。拆分后，各节点存储和处理的数据原则上没有交集。
+主备复制：同一份业务数据存在多个副本，对数据的每次访问根据一定规则分发到某一个或多个副本上执行。
+故障转移：当业务数据所在节点故障时，这部分业务数据转移到其他节点上进行，使得故障节点在恢复期间，对应的业务数据仍然可用。
+
+11、水平拆分？
+要实现水平拆分，需要通过数据分布和请求路由配合。
+常见的数据分步方案有：hash映射，范围映射或两者结合（典型的如一致性哈希）
+确定了业务数据如何分布到Redis的不同实例之后，实际数据访问时，根据请求中涉及的key，用对应的数据分布算法得出数据位于哪个实例，
+再将请求路由至该实例，这个过程叫做请求路由。但需要关注数据跨实例问题：
+只读的跨实例请求：需要将请求中的多个key分别分发到对应实例上执行，再合并结果。
+跨实例的原子读写请求：事务、集合型数据的转存操作（如ZUNIONSTORE），向实例B的写入操作依赖于对实例A的读取。单实例情况下，
+Redis的单线程特性保证此类读写依赖的并发安全，然而在跨实例情况下，这个前提被打破，因此存在跨节点读写依赖的原子请求是不支持的。
+
+12、主备复制？
+主备复制是指将相同数据存放在多个不同节点上。如何保证各节点的数据一致性是关键问题。在不同存储系统架构下方案不同，有的采用客户端双写，
+有的采用存储层复制。Redis采用主备复制的方式保证一致性，即所有节点中，有一个节点为主节点，对外提供写入服务，
+所有的数据变更由外界对master的写入触发，之后Redis内部异步地将数据从主节点复制到其他节点（slave）上。
+master视角：
+slave向master发起SYNC命令
+master收到SYNC命令后，开启BGSAVE操作。
+BGSAVE完成后，master将快照信息发送给slave
+发送期间，master收到新的写命令，除了正常响应外，再存入一份到backlog队列
+快照信息发送完成后，master继续发送backlog队列信息
+backlog发送完成后，后续的写操作同时发给slave，保持实时地异步复制。
+slave视角：
+发送完SYNC后，继续对外提供服务
+开始接受master的快照信息，此时，将slave现有数据清空，并将master快照写入自身内存
+回放backlog内容，期间对外提供读请求
+继续接受后续来自master的命令副本并继续回放，以保持数据和master一致。
+
+13、故障转移？
+当两台以上Redis实例形成主备关系后，它们组成的集群就具备了一定的高可用性：当master故障时，slave可以成为新的master，对外提供读写服务。
+这种机制成为failover。问题是谁去发现master的故障并做failover的决策？
+保持一个daemon进程，监控所有master-slave节点
+daemon作为单点，本身的可用性无法保证。很直观的想到，可以引入多daemon，此时就变成了
+引入多个daemon，解决了可用性问题，但多个daemon间，如何就某个master是否可用达成一致？
+Redis的sentinel提供了一套多daemon间的交互机制，解决故障发现、failover决策协商机制等问题
+
+14、sentinel节点的相互感知？
+sentinel和sentinel之间是通过订阅相同的channel:_sentinel_:hello相互感知的，一个新加入的sentinel节点向这个channel发布一条信息，
+包含了自己信息，该channel的订阅者们就发现了新的sentinel。随后新sentinel和已有的其他sentinel节点建立长连接。sentinel集群中所有节点两两连接。
+
+15、master的故障发现？
+sentinel节点通过定期master发送心跳包判断其存活状态，一旦发现master没有正确响应，sentinel则将此master置为主观不可用，并发送给其它所有的sentinel节点进行确认，
+当确认的sentinel节点数>=quorum（可配置）时，则判定master为不可用，随后进入failover流程。
+
+16、failover决策？
+当master真正宕机后，可能存在多个sentinel同时发现该问题并通过交互确认了相互的主观不可用态。此时需要开始一个leader选举过程，选择谁来发起failover。Redis采用类似Raft协议实现这个选举算法。
+当leader确定之后，从master所有的slave中依据一定规则选取一个作为新的master，告知其他slave连接这个新的master。

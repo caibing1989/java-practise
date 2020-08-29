@@ -1,4 +1,4 @@
-package spring.jdkandcglib;
+package spring.jdkandcglib.jdkstyle;
 
 /**
  * @Description: 抽象角色

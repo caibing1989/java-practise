@@ -1,0 +1,26 @@
+1、Runnable的缺陷
+没有返回值
+不能抛出checked exception
+
+2、为什么有这样的缺陷？为什么设计成这样？
+如果抛出去了？谁去处理？thread类？线程池？即便往上抛也没有可以处理的地方，还不如在run方法中catch住
+
+3、针对无法抛出检查后异常这个缺陷，有没有什么补救措施？
+用callable接口
+
+4、callable和future的关系？
+可以通过future的get来获取callable接口返回的执行结果
+可以通过future的isDone来判断任务是否已经执行完毕了，
+以及取消这个任务，限时获取任务的结果
+在call方法未执行完毕前，调用get的线程会进入阻塞，直到call方法返回了结果，此时future.get才能得到该结果，然后切回runnable状态
+所以future是一个存储器，存储了call这个任务的结果
+
+5、cancel方法，取消任务的执行
+如果任务还没有开始执行，任务会被取消，未来也不会被执行，方法返回true
+如果任务已经完成或者已经被取消，cancel会执行失败，方法返回false
+如果任务已经开始执行了，这个取消方法将不会直接取消该任务，而是会根据我们填写的参数mayInterruptIfRunning做判断
+如果任务有能力正确处理中断，传入true，如果不清楚任务有没有能力正确处理中断，传入false
+
+6、用FutureTask来创建Future
+FutureTask是一种包装器，可以把Callable转化成Future和Runnable，它同时实现二者的接口
+FutureTask既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值

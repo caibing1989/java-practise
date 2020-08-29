@@ -1,0 +1,70 @@
+1、什么是ioc？
+inversion of control，它是一种思想，ioc意味着将你设计好的对象交给容器控制，而不是传统的在你的对象中直接控制
+谁控制谁、控制什么？
+传统的javaSE程序设计中，我们直接在对象内部通过new进行创建对象，是程序主动创建依赖对象；而ioc是有专门的容器来创建对象，
+即由ioc容器来控制对象的创建；谁控制谁？当然是ioc容器控制对象；控制什么？主要是控制外部资源的获取，不只是对象，还包含文件
+为何是反转？哪些方面反转了？
+有反转就有正转，传统的JavaSE程序中，我们在对象中主动控制去直接获取依赖对象，也就是正转；而反转则是容器帮忙创建对象，并注入依赖对象
+因为容器帮我们查找和注入依赖对象，而我们只是被动的接受依赖对象，所以是反转。哪些方面反转了？依赖对象的获取方式反转了
+
+2、什么是di？
+dependency injection
+组件之间的依赖关系由容器在运行时决定，由容器将某个依赖关系注入到组件中，依赖注入的目的并非为软件系统带来更多的功能，而是提升组件重用的频率
+为系统搭建一个灵活可扩展的平台
+
+3、ioc容器初始化的过程？
+主要是四个步骤
+bean的定义，bean可以定义在xml中，或者注解，这些都被Resource定位，读取Resource获取BeanDefinition注册到Bean定义注册表中
+根据定义构建bean，第一次getBean操作会触发Bean的创建过程，实例化一个Bean时，根据BeanDefinition中的类信息来实例化Bean
+将实例化的bean放到单列Bean缓存中
+此后，应用程序再次获取getBean时，就调用缓存队列中的Bean实例
+
+4、Bean的注入方式？
+set注入，A类中有B类的引用，并且A类中有b的set方法，在bean中添加property标签即可注入。实际上是将b实例化，然后调用set方法注入
+构造器注入，A类中有B类的引用，并且A类构造器参数中有B，实质上就是通过构造器函数注入
+静态工厂注入，需要有静态工厂实例化的类
+实例工厂注入
+使用注解注入 @Autowired @Resource @Value
+
+5、Spring常用注解
+@Configuration 把一个类做为ioc容器，它的某个方法上如果注册了Bean，就会作为Spring容器的Bean
+@Scope 作用域
+@Service 用于标注
+@Controller用于标注控制层组件（如struts中的action）
+@Repository用于标注数据访问组件，即DAO组件。
+@Component泛指组件，当组件不好归类的时候，我们可以使用这个注解进行标注。
+
+6、autowire有4中模式
+"no"：Spring默认的模式。bean的引用必须在XML文件中通过<ref/>元素或ref属性显示定义。
+"byName"：通过属性名使用自动装配。如果一个Cat类拥有一个dog属性，那么Spring会根据名字dog去寻找bean,如果没有找到bean,则不会自动装配。
+"byType"：如果Spring容器只有该属性类型的一个bean，会自动装配。当有多个该属性类型的bean时会报错。如果没有，则不会自动装配。
+"constructor"：针对构造器引用，和byType类似。
+
+7、Bean解析注册过程
+xml-》BeanResource-》BeanDefinition-》BeanFactory
+通过xml配置获取BeanResource资源，然后解析得到BeanDefinition信息，创建一个BeanFactory，创建一个载入BeanDefinition的解读器
+这里使用xmlBeanDefinitionReader中的loadBeanDefinition()方法执行
+
+8、Bean的生命周期
+根据BeanDefinition信息实例化Bean，调用构造方法
+根据BeanDefinition信息，配置Bean的所有属性（将bean的引用注入到bean对应的属性中，可能存在循环依赖的问题）
+如果Bean实现了BeanNameAware接口，工厂调用Bean的setBeanName，参数为Bean的id
+如果Bean实现了BeanFactoryAware接口，Spring将调用setBeanFactory()，将BeanFactory容器实例传入
+如果Bean实现了ApplicationContextAware接口，Spring将调用setApplicationContext()，将bean所在的应用上下文的引用传入
+如果存在类实现了BeanPostProcessor接口，执行这些实现类的postProcessBeforeInitialization()，这相当于Bean初始化之前的插入逻辑
+如果Bean实现了InitializingBean接口，执行afterPropertiesSet方法
+如果Bean指定了init-method方法，就调用该方法
+如果存在类实现了BeanPostProcessor接口，执行这些实现类的postProcessAfterInitialization，这相当于在Bean初始化之后插入逻辑
+这个阶段Bean已经可以使用了，scope为singleton的Bean会被缓存在IOC容器中
+如果Bean实现了DisposableBean接口， 在容器销毁的时候执行destroy方法。
+如果配置了destory-method方法，就调用该方法。例：\<bean destroy-method="customerDestroy">
+
+9、Bean的实例化顺序
+解析内部嵌套的bean，解析是否被定义为一个bean，如果是，递归解析
+解析@PropertySource
+解析@ComponentScan，通过扫描得到的Bean Class会被立即解析成BeanDefinition
+解析@Import引入的类，如果这个类是一个配置类，则递归解析
+解析@Bean标识的方法，此种形式定义的Bean Class不会被递归解析
+解析父类上的@ComponentScan，@Import，@Bean，父类不会被再次实例化，因为其子类能够做父类的工作，不需要额外的Bean了
+
+10、bean的循环依赖

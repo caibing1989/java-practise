@@ -1,10 +1,10 @@
-package spring.jdkandcglib;
+package spring.jdkandcglib.jdkstyle;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
- * @Description:
+ * @Description: DynamicSubject这个类的作用是起到解耦的作用，使client不用关心server的对象长什么样子，server也不用关心client是什么
  * @Author: mtdp
  * @Date: 2020-08-09
  */
