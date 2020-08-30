@@ -1,0 +1,8 @@
+1、jsp运行原理？
+用户浏览器访问a.jsp
+服务器查找a.jsp
+服务器加载a.jsp文件到内存中
+服务器将a.jsp翻译成_a_jsp.java文件
+服务器将_a_jsp.java编译成class文件
+服务器jvm将class文件加载到内存中去执行
+服务器将生成到html内容通过流的形式发送给浏览器
