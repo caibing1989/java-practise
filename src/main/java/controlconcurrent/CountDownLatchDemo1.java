@@ -23,7 +23,7 @@ public class CountDownLatchDemo1 {
                 @Override
                 public void run() {
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(5000);
                         System.out.println("No:" + no + " 完成了检查");
                     } catch (InterruptedException e) {
                         e.printStackTrace();

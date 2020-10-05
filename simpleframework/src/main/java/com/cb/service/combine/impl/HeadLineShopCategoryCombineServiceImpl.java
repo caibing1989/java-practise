@@ -7,6 +7,7 @@ import com.cb.entity.dto.Result;
 import com.cb.service.combine.HeadLineShopCategoryCombineService;
 import com.cb.service.solo.HeadLineService;
 import com.cb.service.solo.ShopCategoryService;
+import org.simpleframework.core.annotation.Service;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
  * @Date: 2020-08-30
  */
 
+@Service
 public class HeadLineShopCategoryCombineServiceImpl implements HeadLineShopCategoryCombineService {
     private HeadLineService headLineService;
     private ShopCategoryService shopCategoryService;

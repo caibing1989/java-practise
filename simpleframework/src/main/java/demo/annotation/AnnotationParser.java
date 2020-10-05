@@ -61,11 +61,12 @@ public class AnnotationParser {
     }
 
 
+    // -Djdk.proxy.ProxyGenerator.saveGeneratedFiles=true 动态代理生成器 并生成文件
     public static void main(String[] args) throws ClassNotFoundException {
-        parseTypeAnnotation();
+        //parseTypeAnnotation();
         System.out.println("--------------------");
         parseFieldAnnotation();
         System.out.println("--------------------");
-        parseMethodAnnotation();
+        //parseMethodAnnotation();
     }
 }

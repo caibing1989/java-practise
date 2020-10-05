@@ -13,7 +13,6 @@ jvm是java程序的运行环境
 
 3、认识jvm规范
 
-
 4、启动类加载器
 用于加载启动基础模块类，例如java.base java.management java.xml
 
