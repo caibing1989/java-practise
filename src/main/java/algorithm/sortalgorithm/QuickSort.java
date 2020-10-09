@@ -9,7 +9,7 @@ package algorithm.sortalgorithm;
 public class QuickSort {
     // N*logN -> N*N
     public static void main(String[] args) {
-        int[] array = new int[]{3, 88, 9, 4, 0, 749, 72, 892, 234, 22};
+        int[] array = new int[]{33, 33, 33, 88, 9, 4, 0, 749, 72, 892, 234, 22};
 
         int start = 0;
         int end = array.length - 1;

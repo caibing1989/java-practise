@@ -1,4 +1,4 @@
-package com.cb.controller;
+package org.simpleframework.mvc;
 
 import com.cb.controller.frontend.MainPageController;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
  * @Date: 2020-08-30
  */
 
-@WebServlet("/")
+@WebServlet("/*")
 public class DispatcherServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

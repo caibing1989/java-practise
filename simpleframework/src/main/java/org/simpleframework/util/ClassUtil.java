@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashSet;
@@ -127,7 +128,7 @@ public class ClassUtil {
      *
      * @param clazz
      * @param accessible 是否支持创建出私有class对象的实例
-     * @param <T> class的类型
+     * @param <T>        class的类型
      * @return
      */
     public static <T> T newInstance(Class<T> clazz, boolean accessible) {
@@ -138,6 +139,24 @@ public class ClassUtil {
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             log.error("newInstance error:" + e);
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 设置类的属性值
+     *
+     * @param field      成员变量
+     * @param targetObj  类实例
+     * @param fieldValue 成员变量的值
+     * @param accessible 是否允许设置私有属性
+     */
+    public static void setField(Field field, Object targetObj, Object fieldValue, boolean accessible) {
+        field.setAccessible(accessible);
+        try {
+            field.set(targetObj, fieldValue);
+        } catch (IllegalAccessException e) {
+            log.error("setField error:", e);
+            e.printStackTrace();
         }
     }
 

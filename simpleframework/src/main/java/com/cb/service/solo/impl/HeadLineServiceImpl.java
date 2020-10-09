@@ -3,6 +3,7 @@ package com.cb.service.solo.impl;
 import com.cb.entity.bo.HeadLine;
 import com.cb.entity.dto.Result;
 import com.cb.service.solo.HeadLineService;
+import lombok.extern.slf4j.Slf4j;
 import org.simpleframework.core.annotation.Service;
 
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.List;
  */
 
 @Service
+@Slf4j
 public class HeadLineServiceImpl implements HeadLineService {
     @Override
     public Result<Boolean> addHeadLine(HeadLine headLine) {
+        log.info("addHeadLine被执行了");
         return null;
     }
 

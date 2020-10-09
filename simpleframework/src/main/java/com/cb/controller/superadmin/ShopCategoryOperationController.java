@@ -4,6 +4,7 @@ import com.cb.entity.bo.ShopCategory;
 import com.cb.entity.dto.Result;
 import com.cb.service.solo.ShopCategoryService;
 import org.simpleframework.core.annotation.Controller;
+import org.simpleframework.inject.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Controller
 public class ShopCategoryOperationController {
+    @Autowired
     private ShopCategoryService shopCategoryService;
 
     public Result<Boolean> addShopCategory(HttpServletRequest req, HttpServletResponse resp) {

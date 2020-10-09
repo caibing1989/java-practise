@@ -3,6 +3,7 @@ package org.simpleframework.core;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.simpleframework.aop.annotation.Aspect;
 import org.simpleframework.core.annotation.Component;
 import org.simpleframework.core.annotation.Controller;
 import org.simpleframework.core.annotation.Repository;
@@ -55,7 +56,7 @@ public class BeanContainer {
      * 加载bean的注解列表
      */
     private static final List<Class<? extends Annotation>> BEAN_ANNOTATION
-            = Arrays.asList(Component.class, Controller.class, Repository.class, Service.class);
+            = Arrays.asList(Component.class, Controller.class, Repository.class, Service.class, Aspect.class);
     // 获取指定范围的class对象
     // 依据配置提取的class对象，连同实例一并存入容器
 
@@ -199,7 +200,7 @@ public class BeanContainer {
         // 判断classSet中的元素是否是interfaceOrClass的子类
         Set<Class<?>> resultSet = new HashSet<>();
         resultSet = classSet.stream()
-                .filter(e -> e.isAssignableFrom(interfaceOrClass))
+                .filter(interfaceOrClass::isAssignableFrom)
                 .collect(Collectors.toSet());
 
         return resultSet.size() == 0 ? null : resultSet;
